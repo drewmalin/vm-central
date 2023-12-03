@@ -1,0 +1,8 @@
+*/**id_rsa
+*/**id_rsa.pub
+.idea/
+logs/
+target/
+*.iml
+*.DS_Store
+my.config.json

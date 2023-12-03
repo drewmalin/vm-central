@@ -1,0 +1,561 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.drewmalin.cloud-vm-central</groupId>
+    <artifactId>cloud-vm-central</artifactId>
+    <version>1.0-SNAPSHOT</version>
+
+    <name>cloud-vm-central</name>
+
+    <properties>
+
+        <!-- project-level -->
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
+
+        <!-- plugins -->
+        <plugin.maven.clean>3.1.0</plugin.maven.clean>
+        <plugin.maven.resources>3.0.2</plugin.maven.resources>
+        <plugin.maven.compiler>3.8.0</plugin.maven.compiler>
+        <plugin.maven.surefire>2.22.1</plugin.maven.surefire>
+        <plugin.maven.jar>3.0.2</plugin.maven.jar>
+        <plugin.maven.install>2.5.2</plugin.maven.install>
+        <plugin.maven.deploy>2.8.2</plugin.maven.deploy>
+        <plugin.maven.site>3.7.1</plugin.maven.site>
+        <plugin.maven.project-info-reports>3.0.0</plugin.maven.project-info-reports>
+        <plugin.maven.dependency>3.6.1</plugin.maven.dependency>
+        <plugin.maven.failsafe>3.1.2</plugin.maven.failsafe>
+
+        <!-- dependencies -->
+        <dependency.com.fasterxml.jackson.datatype>2.15.3</dependency.com.fasterxml.jackson.datatype>
+        <dependency.com.h2database>2.2.224</dependency.com.h2database>
+        <dependency.io.vertx>4.5.0</dependency.io.vertx>
+        <dependency.io.micrometer>1.11.5</dependency.io.micrometer>
+        <dependency.io.prometheus>0.16.0</dependency.io.prometheus>
+        <dependency.org.apache.commons>3.12.0</dependency.org.apache.commons>
+        <dependency.org.flywaydb>7.5.0</dependency.org.flywaydb>
+        <dependency.org.postgresql>42.6.0</dependency.org.postgresql>
+        <dependency.ch.qos.logback>1.4.5</dependency.ch.qos.logback>
+        <dependency.org.slf4j>2.0.7</dependency.org.slf4j>
+        <dependency.io.netty>4.1.95.Final</dependency.io.netty>
+        <dependency.io.agroal>1.16</dependency.io.agroal>
+        <dependency.com.ongres.scram>2.1</dependency.com.ongres.scram>
+        <dependency.aws.java.sdk>2.20.43</dependency.aws.java.sdk>
+
+        <!-- test dependencies -->
+        <dependency.org.hamcrest>1.3</dependency.org.hamcrest>
+        <dependency.org.junit.jupiter>5.10.1</dependency.org.junit.jupiter>
+        <dependency.org.testcontainers>1.19.3</dependency.org.testcontainers>
+        <dependency.io.rest-assured>5.3.2</dependency.io.rest-assured>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>software.amazon.awssdk</groupId>
+                <artifactId>bom</artifactId>
+                <version>${dependency.aws.java.sdk}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <dependencies>
+
+        <!--
+            AWS SDK
+        -->
+        <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>ec2</artifactId>
+            <version>${dependency.aws.java.sdk}</version>
+        </dependency>
+        <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>eventbridge</artifactId>
+            <version>${dependency.aws.java.sdk}</version>
+        </dependency>
+        <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>sqs</artifactId>
+            <version>${dependency.aws.java.sdk}</version>
+        </dependency>
+
+        <!--
+            Apache Commons: common utilities
+        -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>${dependency.org.apache.commons}</version>
+        </dependency>
+
+        <!--
+            SLF4J: logging facade
+        -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${dependency.org.slf4j}</version>
+        </dependency>
+
+        <!--
+            Logback: logging engine
+        -->
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-core</artifactId>
+            <version>${dependency.ch.qos.logback}</version>
+        </dependency>
+
+        <!--
+            Logback-classic: enhance Logback to support SLF4J
+        -->
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>${dependency.ch.qos.logback}</version>
+        </dependency>
+
+        <!--
+            Added to resolve an error message upon vert.x startup:
+
+            "Can not find io.netty.resolver.dns.macos.MacOSDnsServerAddressStreamProvider in the classpath, fallback to
+            system defaults. This may result in incorrect DNS resolutions on MacOS."
+        -->
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-all</artifactId>
+            <version>${dependency.io.netty}</version>
+        </dependency>
+
+        <!--
+            Vert.x Web: adds high-level functionality for building HTTP servers
+
+            https://vertx.io/docs/vertx-web/java/
+        -->
+        <dependency>
+            <groupId>io.vertx</groupId>
+            <artifactId>vertx-web</artifactId>
+            <version>${dependency.io.vertx}</version>
+        </dependency>
+
+        <!--
+            Vert.x Web Validation: extends vertx-web, adding support for HTTP request parameter and body validation
+
+            https://vertx.io/docs/vertx-web-validation/java/
+        -->
+        <dependency>
+            <groupId>io.vertx</groupId>
+            <artifactId>vertx-web-validation</artifactId>
+            <version>${dependency.io.vertx}</version>
+        </dependency>
+
+        <!--
+            Vert.x PG Client: PostgreSQL client
+
+            https://vertx.io/docs/vertx-pg-client/java/
+        -->
+        <dependency>
+            <groupId>io.vertx</groupId>
+            <artifactId>vertx-pg-client</artifactId>
+            <version>${dependency.io.vertx}</version>
+        </dependency>
+
+        <!--
+            PostgreSQL: used by Vert.x PG Client
+        -->
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>${dependency.org.postgresql}</version>
+        </dependency>
+
+        <!--
+            Vert.x JDBC Client: JDBC client (mainly used to support H2 for in-memory testing)
+
+            https://vertx.io/docs/vertx-jdbc-client/java/
+        -->
+        <dependency>
+            <groupId>io.vertx</groupId>
+            <artifactId>vertx-jdbc-client</artifactId>
+            <version>${dependency.io.vertx}</version>
+        </dependency>
+
+        <!--
+            H2: embedded, in-memory JDBC-compliant database (used for in-memory testing)
+
+            http://www.h2database.com/html/cheatSheet.html
+        -->
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <version>${dependency.com.h2database}</version>
+        </dependency>
+
+        <!--
+            Agroal: datasource connection pooling (used by Vert.x)
+
+            https://agroal.github.io/about.html
+        -->
+        <dependency>
+            <groupId>io.agroal</groupId>
+            <artifactId>agroal-api</artifactId>
+            <version>${dependency.io.agroal}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.agroal</groupId>
+            <artifactId>agroal-pool</artifactId>
+            <version>${dependency.io.agroal}</version>
+        </dependency>
+
+        <!--
+            Jackson-Datatype: Extend JSON parsing with support for Java 8+ data types
+        -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
+            <version>${dependency.com.fasterxml.jackson.datatype}</version>
+        </dependency>
+
+        <!--
+            Vert.x SQL Client Templates: simplified SQL query generation
+
+            https://vertx.io/docs/vertx-sql-client-templates/java/
+        -->
+        <dependency>
+            <groupId>io.vertx</groupId>
+            <artifactId>vertx-sql-client-templates</artifactId>
+            <version>${dependency.io.vertx}</version>
+        </dependency>
+
+        <!--
+            Flyway: database migrations
+
+            https://flywaydb.org
+        -->
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-core</artifactId>
+            <version>${dependency.org.flywaydb}</version>
+        </dependency>
+
+        <!--
+            SCRAM (Salted Challenge Response Authentication Mechanism) Java implementation, used by service-to-service
+            communication over SASL (Simple Authentication and Security Layer).
+
+            Communication via Flyway -> JDBC necessitates the use of SCRAM
+        -->
+        <dependency>
+            <groupId>com.ongres.scram</groupId>
+            <artifactId>client</artifactId>
+            <version>${dependency.com.ongres.scram}</version>
+        </dependency>
+
+        <!--
+            Vert.x Config: configuration file parsing and update-event subscriptions
+
+            https://vertx.io/docs/vertx-config/java/
+        -->
+        <dependency>
+            <groupId>io.vertx</groupId>
+            <artifactId>vertx-config</artifactId>
+            <version>${dependency.io.vertx}</version>
+        </dependency>
+
+        <!--
+            Vert.x Health Checks: simple healthcheck system for Vert.x-based applications
+
+            https://vertx.io/docs/vertx-health-check/java/
+        -->
+        <dependency>
+            <groupId>io.vertx</groupId>
+            <artifactId>vertx-health-check</artifactId>
+            <version>${dependency.io.vertx}</version>
+        </dependency>
+
+        <!--
+            Vert.x Micrometer Metrics: Micrometer-based implementation of the Vert.x Metrics Service Provider Interface
+
+            https://vertx.io/docs/vertx-micrometer-metrics/java/
+        -->
+        <dependency>
+            <groupId>io.vertx</groupId>
+            <artifactId>vertx-micrometer-metrics</artifactId>
+            <version>${dependency.io.vertx}</version>
+        </dependency>
+
+        <!--
+            Micrometer Prometheus registry: allows for Micrometer to act as a facade over Prometheus for metrics
+            collection
+        -->
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-registry-prometheus</artifactId>
+            <version>${dependency.io.micrometer}</version>
+        </dependency>
+
+        <!--
+            Prometheus: metrics aggregation system
+        -->
+        <dependency>
+            <groupId>io.prometheus</groupId>
+            <artifactId>simpleclient_hotspot</artifactId>
+            <version>${dependency.io.prometheus}</version>
+        </dependency>
+
+        <!--
+            Vert.x JWT Auth: JWT creation, signing, verification, and parsing
+
+            https://vertx.io/docs/vertx-auth-jwt/java/
+        -->
+        <dependency>
+            <groupId>io.vertx</groupId>
+            <artifactId>vertx-auth-jwt</artifactId>
+            <version>${dependency.io.vertx}</version>
+        </dependency>
+
+        <!--
+            Vert.x Web Client: Web client!
+
+            https://vertx.io/docs/vertx-web-client/java/
+        -->
+        <dependency>
+            <groupId>io.vertx</groupId>
+            <artifactId>vertx-web-client</artifactId>
+            <version>${dependency.io.vertx}</version>
+        </dependency>
+
+        <!--
+            JUnit Jupiter: test engine
+        -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>${dependency.org.junit.jupiter}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!--
+            Hamcrest: test utilities
+        -->
+        <dependency>
+            <groupId>org.hamcrest</groupId>
+            <artifactId>hamcrest-all</artifactId>
+            <version>${dependency.org.hamcrest}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!--
+            Vert.x JUnit 5: support for JUnit 5
+        -->
+        <dependency>
+            <groupId>io.vertx</groupId>
+            <artifactId>vertx-junit5</artifactId>
+            <version>${dependency.io.vertx}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!--
+            Testcontainers: use of Docker containers in integration tests
+        -->
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>${dependency.org.testcontainers}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>localstack</artifactId>
+            <version>${dependency.org.testcontainers}</version>
+        </dependency>
+
+        <!--
+            REST Assured: fluent-style testing for REST APIs for system tests
+        -->
+        <dependency>
+            <groupId>io.rest-assured</groupId>
+            <artifactId>rest-assured</artifactId>
+            <version>${dependency.io.rest-assured}</version>
+            <scope>test</scope>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+        <!--
+            Extend this project to support three locations for test code:
+              1. "src/test" (unit)
+              2. "src/test-integration" (integration, meaning: dependent services are live)
+              3. "src/test-system" (system, meaning: the full system is tested from its API)
+
+              To this end, the <testResources> block must be modified
+
+              Similarly, <compileSourceRoots> must be modified (within the maven-compiler-plugin)
+        -->
+        <testResources>
+            <testResource>
+                <directory>src/test/resources</directory>
+            </testResource>
+            <testResource>
+                <directory>src/test-integration/resources</directory>
+            </testResource>
+            <testResource>
+                <directory>src/test-system/resources</directory>
+            </testResource>
+        </testResources>
+
+        <pluginManagement>
+            <plugins>
+                <!-- clean lifecycle, see https://maven.apache.org/ref/current/maven-core/lifecycles.html#clean_Lifecycle -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-clean-plugin</artifactId>
+                    <version>${plugin.maven.clean}</version>
+                </plugin>
+                <!-- default lifecycle, jar packaging: see https://maven.apache.org/ref/current/maven-core/default-bindings.html#Plugin_bindings_for_jar_packaging -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-resources-plugin</artifactId>
+                    <version>${plugin.maven.resources}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>${plugin.maven.compiler}</version>
+                    <executions>
+                        <execution>
+                            <phase>test-compile</phase>
+                            <goals>
+                                <goal>testCompile</goal>
+                            </goals>
+                            <configuration>
+                                <compileSourceRoots>
+                                    <compileSourceRoot>src/test/java</compileSourceRoot>
+                                    <compileSourceRoot>src/test-integration/java</compileSourceRoot>
+                                    <compileSourceRoot>src/test-system/java</compileSourceRoot>
+                                </compileSourceRoots>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+                <!--
+                    Surefire is meant for Unit testing, so exclude non-unit tests (via @Tag annotations)
+                -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>${plugin.maven.surefire}</version>
+                    <configuration>
+                        <excludedGroups>integration,system</excludedGroups>
+                    </configuration>
+                </plugin>
+                <!--
+                    Failsafe is meant for Integration testing, so include integration tests (via @Tag annotations)
+                -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-failsafe-plugin</artifactId>
+                    <version>${plugin.maven.failsafe}</version>
+                    <configuration>
+                        <includes>**/*</includes>
+                        <groups>integration</groups>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>integration-test</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+
+                <!--
+                    Copy all third-party dependencies into a new "dependencies" directory
+                -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-dependency-plugin</artifactId>
+                    <version>${plugin.maven.dependency}</version>
+                    <executions>
+                        <execution>
+                            <id>copy-dependencies</id>
+                            <phase>package</phase>
+                            <goals>
+                                <goal>copy-dependencies</goal>
+                            </goals>
+                            <configuration>
+                                <outputDirectory>${project.build.directory}/dependencies/</outputDirectory>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+
+                <!--
+                    Rename the final .jar file "application"
+
+                    Add the "dependencies" directory to its classpath
+                -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-jar-plugin</artifactId>
+                    <version>${plugin.maven.jar}</version>
+                    <configuration>
+                        <finalName>application</finalName>
+                        <archive>
+                            <manifest>
+                                <addClasspath>true</addClasspath>
+                                <mainClass>com.drewmalin.vm.central.Main</mainClass>
+                                <classpathPrefix>dependencies</classpathPrefix>
+                            </manifest>
+                        </archive>
+                    </configuration>
+                </plugin>
+
+                <plugin>
+                    <artifactId>maven-install-plugin</artifactId>
+                    <version>${plugin.maven.install}</version>
+                </plugin>
+                <plugin>
+                    <artifactId>maven-deploy-plugin</artifactId>
+                    <version>${plugin.maven.deploy}</version>
+                </plugin>
+                <plugin>
+                    <artifactId>maven-site-plugin</artifactId>
+                    <version>${plugin.maven.site}</version>
+                </plugin>
+                <plugin>
+                    <artifactId>maven-project-info-reports-plugin</artifactId>
+                    <version>${plugin.maven.project-info-reports}</version>
+                </plugin>
+
+            </plugins>
+        </pluginManagement>
+
+        <!-- plugin activation -->
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+</project>

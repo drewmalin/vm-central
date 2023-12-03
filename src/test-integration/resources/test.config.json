@@ -1,0 +1,47 @@
+{
+  "vertx": {
+    "vertx.worker.pool.size": 5,
+    "metrics.prometheus.enabled": true
+  },
+  "vm.iaas": {
+    "aws": {
+      "endpoint": "http://localhost:4566"
+    }
+  },
+  "vm.central": {
+    "http.port": 9876,
+    "auth.key.filename.public": "src/test-integration/resources/id_rsa.pub",
+    "auth.key.filename.private": "src/test-integration/resources/id_rsa",
+    "datasource.engine": "postgres",
+    "datasource.max.pool.size": 5,
+    "datasource.host": {
+      "type": "plaintext",
+      "value": "localhost"
+    },
+    "datasource.port": {
+      "type": "plaintext",
+      "value": "9877"
+    },
+    "datasource.database": {
+      "type": "plaintext",
+      "value": "vmcentral"
+    },
+    "datasource.username": {
+      "type": "plaintext",
+      "value": "vmcentral"
+    },
+    "datasource.password": {
+      "type": "plaintext",
+      "value": "password"
+    },
+    "job.vm.update_status": {
+      "disabled": false,
+      "period.millis": 60000
+    }
+  },
+  "vm.cloud.worker": {
+    "disabled": true,
+    "vertx.worker.pool.name": "vm-cloud-worker-pool",
+    "vertx.worker.pool.size": 5
+  }
+}
